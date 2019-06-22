@@ -1,6 +1,6 @@
 # Express.js Error Handling
 
-How to validate requests and handle errors in Express.js using Joi validation library. [Click here for a link to the repo](https://github.com/howardmann/validation).
+How to validate requests and handle errors in Express.js using [Joi](https://github.com/hapijs/joi) validation library. [Click here for a link to the repo](https://github.com/howardmann/validation).
 
 1. [Gentle introduction to Joi validation](#1.-Gentle-introduction-to-Joi-validation)
 2. [General route error handling in Express.js](#2.-General-route-error-handling-in-Express.js)
@@ -122,7 +122,7 @@ app.listen(PORT, () => {
 We can validate incoming Express payload requests using Joi in 3 ways:
 1. We handle the payload within the route and catch error if its invalid
 2. Create a custom middleware ([see next section](###Generic-Middleware)) to handle the validation and throw error if invalid
-3. Use a library named `celebrate` which does same as option 2 but with more features
+3. Use the [celebrate](https://github.com/arb/celebrate) library which does same as option 2 but with more features
 
 ```javascript
 let express = require('express');
