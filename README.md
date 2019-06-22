@@ -1,6 +1,6 @@
-# Express Error Handling
+# Express.js Error Handling
 
-How to validate requests and handle errors in Express.js using Joi validation library. Click here for a link to the repo.
+How to validate requests and handle errors in Express.js using Joi validation library. (Click here for a link to the repo)[https://github.com/howardmann/validation].
 
 1. [Gentle introduction to Joi validation](#1.-Gentle-introduction-to-Joi-validation)
 2. [General route error handling in Express.js](#2.-General-route-error-handling-in-Express.js)
