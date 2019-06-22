@@ -32,4 +32,9 @@ router.post('/products3', celebrate({body: createProductSchema}), (req, res, nex
   res.send({status: 'success', payload})
 })
 
+
+let signUp = require('./signUp')
+router.get('/signup', signUp.show)
+router.post('/signup', signUp.create)
+
 module.exports = router;

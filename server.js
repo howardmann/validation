@@ -1,9 +1,30 @@
 let express = require('express')
 let bodyParser = require('body-parser') // handle req.body
 let {errors} = require('celebrate') // handle celebrate joi errors
+let exphbs = require('express-handlebars')
+let session = require('express-session')
+let flash = require('connect-flash')
 
 let app = express()
+
+// body parser
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
+
+// view engine setup
+app.engine('.hbs', exphbs({extname: '.hbs'}))
+app.set('view engine', '.hbs')
+
+// session and flash views
+app.use(session({
+  secret: 'ilikecats',
+  cookie: {},
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(flash())
+app.use(require('./middlewares/flashMessageInViews'))
+
 
 // Require routes
 app.use(require('./routes'))
@@ -12,18 +33,7 @@ app.use(require('./routes'))
 app.use(errors())
 
 // Custom server error handler
-app.use((err, req, res, next) => {
-  if (err) {
-    console.error(err.message)
-    if (!err.statusCode) {err.statusCode = 500} // Set 500 server code error if statuscode not set
-    return res.status(err.statusCode).send({
-      statusCode: err.statusCode,
-      message: err.message
-    })
-  }
-
-  next()
-})
+app.use(require('./middlewares/handleErrors'))
 
 // Custom 404 route not found handler
 app.use((req, res) => {

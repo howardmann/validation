@@ -1,0 +1,12 @@
+  <div style="background-color: red">
+    {{#if validationFailure}}
+    <p>Validation Errors</p>
+    {{/if}}
+    <ul>
+      {{#each validationFailure}}
+      <li>
+        {{this}}
+      </li>
+      {{/each}}
+    </ul>
+  </div>
