@@ -349,3 +349,45 @@ module.exports = router
 
 ### 4. DRY with middleware
 If we have many forms that require validating (e.g. for both edit and create) we can refactor our validation into a custom middleware.
+
+Create a validateForm middleware function that takes a Joi schema as an argument and redirects back with validationFailure flash message if error.
+
+```javascript
+//validation/middlewares/validateForm 
+let createValidator = require('../createValidator.js')
+
+module.exports = (schema) =>
+  (req, res, next) => {
+    let payload = req.body
+    let validate = createValidator(schema)
+
+    validate(payload)
+      .then(validated => {
+        req.body = validated
+        next()
+      })
+      .catch(err => {
+        let errorMessages = err.details.map(el => el.message)
+        console.log(errorMessages)
+        req.flash('validationFailure', errorMessages)
+        res.redirect('back')
+      })
+  }
+```
+
+We can now use it as reusable middleware for any route.
+```javascript
+//routes/index.js
+let validateForm = require('../validation/middlewares/validateForm')
+
+// middleware handles redirect back with validationFailure flash message
+// route then only has to deal with success outcome
+router.post('/signup', validateForm(createUserSchema), (req, res, next) => {
+  let payload = req.body
+  // handle payload etc. in db
+  console.log(payload);
+  req.flash('messageSuccess', 'woohoo')
+  res.redirect('/signup')
+})
+
+```

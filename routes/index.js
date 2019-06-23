@@ -38,8 +38,11 @@ router.post('/products3', celebrate({body: createProductSchema}), (req, res, nex
 let signUp = require('./signUp')
 router.get('/signup', signUp.show)
 // router.post('/signup', signUp.create)
-router.post('/signup', validateForm(createUserSchema, '/signup'), (req, res, next) => {
+
+// Using middelware
+router.post('/signup', validateForm(createUserSchema), (req, res, next) => {
   let payload = req.body
+  // handle payload etc. in db
   console.log(payload);
   req.flash('messageSuccess', 'woohoo')
   res.redirect('/signup')

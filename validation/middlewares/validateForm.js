@@ -1,6 +1,6 @@
 let createValidator = require('../createValidator.js')
 
-module.exports = (schema, redirectPath) =>
+module.exports = (schema) =>
   (req, res, next) => {
     let payload = req.body
     let validate = createValidator(schema)
@@ -14,7 +14,7 @@ module.exports = (schema, redirectPath) =>
         let errorMessages = err.details.map(el => el.message)
         console.log(errorMessages)
         req.flash('validationFailure', errorMessages)
-        res.redirect(redirectPath)
+        res.redirect('back')
       })
   }
 
