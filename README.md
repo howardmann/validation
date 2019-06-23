@@ -5,6 +5,7 @@ How to validate requests and handle errors in Express.js using [Joi](https://git
 1. [Gentle introduction to Joi validation](#1.-Gentle-introduction-to-Joi-validation)
 2. [General route error handling in Express.js](#2.-General-route-error-handling-in-Express.js)
 3. [Three examples of handling request validations](#3.Three-examples-of-handling-request-validations)
+4. Flash form validation errors
 
 ## 1. Gentle introduction to Joi validation
 Joi is an expressive validator library for JavaScript objects. It helps ensure inputs are checked before progressing (e.g. to a DB).
@@ -209,3 +210,142 @@ const PORT = 3000
 app.listen(PORT, () => {
 })
 ```
+
+## 4. Flash form validation errors
+The methods above handle API validation errors. However, we may also want to display form validation errors in the browser as a flash message:
+
+![form validation](./img/validation.png)
+
+In this example we will have a signup form that requires three fields (email, name and password). It will validate and flash relevant validation errors.
+
+We will achieve this in stages:
+1. Setup express to  display flash messages
+2. Create user schema and HTML form
+3. Setup routes to handle validations
+4. DRY using middleware
+
+### 1. Display flash messages
+To display flash messages we need two libraries:
+- `connect-flash` for flashing messages; and
+- `express-session` for storing sessions server-side in memory
+
+We write a custom middleware to store the session message as a global variable in views in order to access it in any view template.
+
+```javascript
+// server.js
+let session = require('express-session')
+let flash = require('connect-flash')
+
+// session and flash views
+app.use(session({
+  secret: 'ilikecats',
+  cookie: {},
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(flash())
+
+// store three flash variables as global variables in views
+app.use((req, res, next) => {
+  res.locals.messageSuccess = req.flash('messageSuccess')
+  res.locals.messageFailure = req.flash('messageFailure')
+  res.locals.validationFailure = req.flash('validationFailure')
+  next();
+})
+```
+
+Then in our views layout we insert placeholders to be able to render these flash messages if they exist. For the `validationFailure` it will be passed an array of messages so we want to loop through and display as a bullet points.
+```hbs
+<!-- views/layouts/main.hbs -->
+
+<div style="background-color: red">
+  {{messageFailure}}
+</div>
+
+<div style="background-color: green">
+  {{messageSuccess}}
+</div>
+
+<div style="background-color: red">
+  {{#if validationFailure}}
+  <p>Validation Errors</p>
+  {{/if}}
+  <ul>
+    {{#each validationFailure}}
+    <li>
+      {{this}}
+    </li>
+    {{/each}}
+  </ul>
+</div>
+
+{{{body}}}
+```
+### 2. User schema and form
+As with our product schema above we will create a user schema to handle validation using `Joi`.
+
+```javascript
+//validation/schemas/userSchema
+let Joi = require('joi')
+
+module.exports = Joi.object().keys({
+  email: Joi.string().email(),
+  name: Joi.string(),
+  password: Joi.string().min(7).alphanum()
+})
+```
+
+Now create a simple HTML form in our view template
+```handlebars
+<!-- views/signup.hbs -->
+<form action="/signup" method="POST">
+  <input type="email" placeholder="enter email" name="email">
+  <input type="text" placeholder="enter name" name="name">
+  <input type="password" placeholder="enter password" name="password">
+  <input type="submit">
+</form>
+```
+
+### 3. Setup signup routes
+Use the validation helpers we used before along with the schema we created above. Create two routes: 1) for displaying the signup form and 2) for handling the form submission.
+
+Validate the payload using Joi and if validation errors flash validation errors and redirect bac to form.
+```javascript
+//routes
+let express = require('express');
+let router = express.Router();
+let createValidator = require('../validation/createValidator')
+let {createUserSchema} = require('../validation/schemas/userSchema')
+let validateUser = createValidator(createUserSchema)
+
+// display signup form
+router.get('/signup', (req, res, next)) => {
+  res.render('signup')
+}
+
+// handle submit signup form 
+router.post('/signup', (req, res, next)) => {
+  let payload = req.body
+  
+  // Joi validation
+  validateUser(payload)
+    .then(data => {
+      // If success; flash success message and redirect to form
+      console.log(data)
+      req.flash('messageSuccess', 'Success valid input')
+      res.redirect('/signup')
+    })
+    .catch(err => {
+      // If validation error flash array of messages and redirect
+      let errorMessages = err.details.map(el => el.message)
+      console.log(errorMessages)
+      req.flash('validationFailure', errorMessages)
+      res.redirect('/signup')
+    })
+}
+
+module.exports = router
+```
+
+### 4. DRY with middleware
+If we have many forms that require validating (e.g. for both edit and create) we can refactor our validation into a custom middleware.

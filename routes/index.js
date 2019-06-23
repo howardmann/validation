@@ -5,7 +5,9 @@ let router = express.Router();
 // Validation
 let createValidator = require('../validation/createValidator')
 let { createProductSchema } = require('../validation/schemas/productSchema')
-let validate = require('../validation/validateMiddleware')
+let validate = require('../validation/middlewares/validateMiddleware')
+let { createUserSchema } = require('../validation/schemas/userSchema')
+let validateForm = require('../validation/middlewares/validateForm')
 let {celebrate} = require('celebrate')
 
 
@@ -35,6 +37,12 @@ router.post('/products3', celebrate({body: createProductSchema}), (req, res, nex
 
 let signUp = require('./signUp')
 router.get('/signup', signUp.show)
-router.post('/signup', signUp.create)
+// router.post('/signup', signUp.create)
+router.post('/signup', validateForm(createUserSchema, '/signup'), (req, res, next) => {
+  let payload = req.body
+  console.log(payload);
+  req.flash('messageSuccess', 'woohoo')
+  res.redirect('/signup')
+})
 
 module.exports = router;

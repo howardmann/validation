@@ -1,4 +1,4 @@
-let createValidator = require('./createValidator')
+let createValidator = require('../createValidator.js')
 
 let validateMiddleware = (schema) =>
   (req, res, next) => {
