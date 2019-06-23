@@ -2,12 +2,12 @@
 
 How to validate requests and handle errors in Express.js using [Joi](https://github.com/hapijs/joi) validation library. [Click here for a link to the repo](https://github.com/howardmann/validation).
 
-1. [Gentle introduction to Joi validation](#1.-Gentle-introduction-to-Joi-validation)
-2. [General route error handling in Express.js](#2.-General-route-error-handling-in-Express.js)
-3. [Three examples of handling request validations](#3.Three-examples-of-handling-request-validations)
-4. Flash form validation errors
+1. [Gentle introduction to Joi validation](#1-joi)
+2. [General route error handling in Express.js](#2-route)
+3. [Three examples of handling request validations](#3-validation)
+4. [Flash form validation errors](#4-flash)
 
-## 1. Gentle introduction to Joi validation
+## <a name="1-joi"></a>  1. Gentle introduction to Joi validation
 Joi is an expressive validator library for JavaScript objects. It helps ensure inputs are checked before progressing (e.g. to a DB).
 
 You first create a schema and then validate the payload against the schema. If invalid it will throw the relevant error message.
@@ -80,7 +80,7 @@ const createValidator = (schema) =>
 module.exports = createValidator
 ```
 
-## 2. General route error handling in Express.js
+## <a name="2-route"></a> 2. General route error handling in Express.js
 We need to create two error handlers in our express application to handle all server errors and 404 route errors.
 
 This way if we throw an error in any of our other routes the error handler will catch and display the relevant error message.
@@ -119,7 +119,7 @@ app.listen(PORT, () => {
 })
 ```
 
-## 3. Three examples of handling request validations
+## <a name="3-validation"></a> 3. Three examples of handling request validations
 We can validate incoming Express payload requests using Joi in 3 ways:
 1. We handle the payload within the route and catch error if its invalid
 2. Create a custom middleware ([see next section](###Generic-Middleware)) to handle the validation and throw error if invalid
@@ -211,10 +211,10 @@ app.listen(PORT, () => {
 })
 ```
 
-## 4. Flash form validation errors
+## <a name="4-flash"></a> 4. Flash form validation errors
 The methods above handle API validation errors. However, we may also want to display form validation errors in the browser as a flash message:
 
-![form validation](./img/validation.png)
+![form validation](https://raw.githubusercontent.com/howardmann/validation/master/img/validation.png)
 
 In this example we will have a signup form that requires three fields (email, name and password). It will validate and flash relevant validation errors.
 
